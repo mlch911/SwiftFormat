@@ -1412,6 +1412,14 @@ struct _Descriptors {
         keyPath: \.preferFileMacro,
         trueValues: ["#file", "file"],
         falseValues: ["#fileID", "fileID"]
+	)
+    let addDynamic = OptionDescriptor(
+        argumentName: "adddynamic",
+        displayName: "AddDynamic",
+        help: "Add dynamic keyword to function declarations.",
+        keyPath: \.addDynamic,
+        trueValues: ["true", "enabled"],
+        falseValues: ["false", "disabled"]
     )
     let lineBetweenConsecutiveGuards = OptionDescriptor(
         argumentName: "line-between-guards",

@@ -827,6 +827,7 @@ public struct FormatOptions: CustomStringConvertible {
     public var equatableMacro: EquatableMacro
     public var urlMacro: URLMacro
     public var preferFileMacro: Bool
+    public var addDynamic: Bool
     public var lineBetweenConsecutiveGuards: Bool
     public var blankLineAfterSwitchCase: BlankLineAfterSwitchCase
     public var redundantThrows: RedundantEffectMode
@@ -983,7 +984,8 @@ public struct FormatOptions: CustomStringConvertible {
                 languageMode: Version? = nil,
                 fileInfo: FileInfo = FileInfo(),
                 markdownFiles: MarkdownFormattingMode = .ignore,
-                timeout: TimeInterval = 1)
+                timeout: TimeInterval = 1,
+                addDynamic: Bool = false)
     {
         self.lineAfterMarks = lineAfterMarks
         self.indent = indent
@@ -1117,6 +1119,7 @@ public struct FormatOptions: CustomStringConvertible {
         self.fileInfo = fileInfo
         self.markdownFiles = markdownFiles
         self.timeout = timeout
+        self.addDynamic = addDynamic
     }
 
     public var useTabs: Bool {

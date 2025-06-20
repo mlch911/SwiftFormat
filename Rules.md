@@ -1,5 +1,6 @@
 # Default Rules (enabled by default)
 
+* [addDynamic](#addDynamic)
 * [andOperator](#andOperator)
 * [anyObjectProtocol](#anyObjectProtocol)
 * [applicationMain](#applicationMain)
@@ -163,6 +164,41 @@ Option | Description
 + let urlRouter: URLRouter
 + let screenIDs: [String]
 + let entityUUID: UUID
+```
+
+</details>
+<br/>
+
+## addDynamic
+
+Add dynamic keyword to function declarations.
+
+Option | Description
+--- | ---
+`--adddynamic` | Add dynamic keyword to function declarations.
+
+<details>
+<summary>Examples</summary>
+
+```diff
+class TestClass: NSObject {
+    - func method() -> A { }
+    + dynamic func method() -> A { }
+    - public func publicMethod() -> A { }
+    + public dynamic func publicMethod() -> A { }
+    private func privateMethod() -> A { }
+
+    - public static func publicClassMethod() -> A { }
+    + public dynamic static func publicClassMethod() -> A { }
+    private static func privateClassMethod() -> A { }
+    - static func internalClassMethod() -> A { }
+    + dynamic static func internalClassMethod() -> A { }
+
+    - override public func publicMethod() -> A { }
+    + override public dynamic func publicMethod() -> A { }
+    - override public class func publicClassMethod() -> A { }
+    + override public dynamic class func publicClassMethod() -> A { }
+}
 ```
 
 </details>
