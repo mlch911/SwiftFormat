@@ -1412,9 +1412,9 @@ struct _Descriptors {
         keyPath: \.preferFileMacro,
         trueValues: ["#file", "file"],
         falseValues: ["#fileID", "fileID"]
-	)
+    )
     let addDynamic = OptionDescriptor(
-        argumentName: "adddynamic",
+        argumentName: "add-dynamic",
         displayName: "AddDynamic",
         help: "Add dynamic keyword to function declarations.",
         keyPath: \.addDynamic,

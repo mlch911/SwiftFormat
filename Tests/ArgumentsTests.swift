@@ -519,6 +519,30 @@ final class ArgumentsTests: XCTestCase {
         XCTAssertEqual(options.rules, [])
     }
 
+    func testParseArgumentsContainingAddDynamicTrue() throws {
+        let config = "--add-dynamic true"
+        let data = Data(config.utf8)
+        let args = try parseConfigFile(data)[0]
+        let options = try Options(args, in: "/")
+        XCTAssertEqual(options.formatOptions?.addDynamic, true)
+    }
+
+    func testParseArgumentsContainingAddDynamicEnabled() throws {
+        let config = "--add-dynamic enabled"
+        let data = Data(config.utf8)
+        let args = try parseConfigFile(data)[0]
+        let options = try Options(args, in: "/")
+        XCTAssertEqual(options.formatOptions?.addDynamic, true)
+    }
+
+    func testParseArgumentsContainingAddDynamicFalse() throws {
+        let config = "--add-dynamic false"
+        let data = Data(config.utf8)
+        let args = try parseConfigFile(data)[0]
+        let options = try Options(args, in: "/")
+        XCTAssertEqual(options.formatOptions?.addDynamic, false)
+    }
+
     func testPopulatesDefaultLanguageMode() {
         let swift5Options = FormatOptions(swiftVersion: "5.0")
         XCTAssertEqual(swift5Options.languageMode, "5")
@@ -624,6 +648,19 @@ final class ArgumentsTests: XCTestCase {
         let options = Options(formatOptions: FormatOptions(swiftVersion: version))
         let config = serialize(options: options, excludingDefaults: true)
         XCTAssertEqual(config, "--swift-version 5.2")
+    }
+
+    func testSerializeAddDynamicTrue() {
+        let options = Options(formatOptions: FormatOptions(addDynamic: true))
+        let config = serialize(options: options, excludingDefaults: true)
+        XCTAssertEqual(config, "--add-dynamic true")
+    }
+
+    func testSerializeAddDynamicFalse() {
+        let options = Options(formatOptions: FormatOptions(addDynamic: false))
+        let config = serialize(options: options, excludingDefaults: true)
+        // Should not be serialized when false (assuming false is the default)
+        XCTAssertEqual(config, "")
     }
 
     // MARK: config file merging
@@ -785,6 +822,16 @@ final class ArgumentsTests: XCTestCase {
         XCTAssertEqual(formatOptions.fileInfo, fileInfo)
     }
 
+    func testAddArgumentsWithAddDynamic() throws {
+        var options = Options(formatOptions: FormatOptions(addDynamic: false))
+        try options.addArguments(["add-dynamic": "true"], in: "")
+        guard let formatOptions = options.formatOptions else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(formatOptions.addDynamic, true)
+    }
+
     // MARK: options parsing
 
     func testParseEmptyOptions() throws {
@@ -845,6 +892,26 @@ final class ArgumentsTests: XCTestCase {
     func testParseSwiftVersionOption() throws {
         let options = try Options(["swift-version": "4.2"], in: "")
         XCTAssertEqual(options.formatOptions?.swiftVersion, "4.2")
+    }
+
+    func testParseAddDynamicOptionTrue() throws {
+        let options = try Options(["add-dynamic": "true"], in: "")
+        XCTAssertEqual(options.formatOptions?.addDynamic, true)
+    }
+
+    func testParseAddDynamicOptionEnabled() throws {
+        let options = try Options(["add-dynamic": "enabled"], in: "")
+        XCTAssertEqual(options.formatOptions?.addDynamic, true)
+    }
+
+    func testParseAddDynamicOptionFalse() throws {
+        let options = try Options(["add-dynamic": "false"], in: "")
+        XCTAssertEqual(options.formatOptions?.addDynamic, false)
+    }
+
+    func testParseAddDynamicOptionDisabled() throws {
+        let options = try Options(["add-dynamic": "disabled"], in: "")
+        XCTAssertEqual(options.formatOptions?.addDynamic, false)
     }
 
     // MARK: parse rules

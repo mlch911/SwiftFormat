@@ -8,8 +8,8 @@
 import XCTest
 @testable import SwiftFormat
 
-class AddDynamicTests: XCTestCase {
-    func test() {
+final class AddDynamicTests: XCTestCase {
+    func testAddDynamicToClassMethods() {
         let input = """
         class TestClass: NSObject {
             func method() -> A {}
@@ -38,28 +38,17 @@ class AddDynamicTests: XCTestCase {
             func method() -> A {}
         }
 
-        extension TestClass {
-            func method() -> A {}
-        }
-
-        extension TestClass: XXProtocol {
-            func method() -> A {}
-        }
-
-        private extension TestClass {
-            func method() -> A {}
-        }
-
-        func method() -> A {}
+        private func method() -> A {}
         """
         let output = """
+        @objcMembers
         class TestClass: NSObject {
             dynamic func method() -> A {}
             public dynamic func publicMethod() -> A {}
-            private func privateMethod() -> A {}
+            @objc private dynamic func privateMethod() -> A {}
 
             public dynamic static func publicClassMethod() -> A {}
-            private static func privateClassMethod() -> A {}
+            @objc private dynamic static func privateClassMethod() -> A {}
             dynamic static func internalClassMethod() -> A {}
 
             override public dynamic func publicMethod() -> A {}
@@ -80,19 +69,131 @@ class AddDynamicTests: XCTestCase {
             func method() -> A {}
         }
 
-        extension TestClass {
+        private func method() -> A {}
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true), exclude: [.redundantPublic])
+    }
+
+    func testDoesNotAddObjcMembersToGenericClasses() {
+        let input = """
+        class GenericClass<T>: NSObject {
             func method() -> A {}
         }
 
-        extension TestClass: XXProtocol {
+        class GenericClass<T, U>: NSObject {
             func method() -> A {}
         }
 
-        private extension TestClass {
+        class NormalClass: NSObject {
+            func method() -> A {}
+        }
+        """
+        let output = """
+        class GenericClass<T>: NSObject {
             func method() -> A {}
         }
 
-        func method() -> A {}
+        class GenericClass<T, U>: NSObject {
+            func method() -> A {}
+        }
+
+        @objcMembers
+        class NormalClass: NSObject {
+            dynamic func method() -> A {}
+        }
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testDoesNotDuplicateObjcMembers() {
+        let input = """
+        @objcMembers
+        class TestClass: NSObject {
+            func method() -> A {}
+        }
+        """
+        let output = """
+        @objcMembers
+        class TestClass: NSObject {
+            dynamic func method() -> A {}
+        }
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testDoesNotDuplicateDynamic() {
+        let input = """
+        class TestClass: NSObject {
+            dynamic func method() -> A {}
+            @objc private dynamic func privateMethod() -> A {}
+        }
+        """
+        let output = """
+        @objcMembers
+        class TestClass: NSObject {
+            dynamic func method() -> A {}
+            @objc private dynamic func privateMethod() -> A {}
+        }
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testDoesNotAddToNonobjcClass() {
+        let input = """
+        @nonobjc
+        class TestClass: NSObject {
+            func method() -> A {}
+        }
+        """
+        testFormatting(for: input, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testDoesNotAddToNonobjcMethod() {
+        let input = """
+        class TestClass: NSObject {
+            @nonobjc func method() -> A {}
+            func normalMethod() -> A {}
+        }
+        """
+        let output = """
+        @objcMembers
+        class TestClass: NSObject {
+            @nonobjc func method() -> A {}
+            dynamic func normalMethod() -> A {}
+        }
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testReplacesSimpleObjcWithObjcMembers() {
+        let input = """
+        @objc
+        class TestClass: NSObject {
+            func method() -> A {}
+        }
+        """
+        let output = """
+        @objcMembers
+        class TestClass: NSObject {
+            dynamic func method() -> A {}
+        }
+        """
+        testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
+    }
+
+    func testAddsObjcMembersToObjcWithParameters() {
+        let input = """
+        @objc(MyClass)
+        class TestClass: NSObject {
+            func method() -> A {}
+        }
+        """
+        let output = """
+        @objc(MyClass)
+        @objcMembers
+        class TestClass: NSObject {
+            dynamic func method() -> A {}
+        }
         """
         testFormatting(for: input, output, rule: .addDynamic, options: FormatOptions(addDynamic: true))
     }
